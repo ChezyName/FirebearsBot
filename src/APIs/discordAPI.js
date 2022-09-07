@@ -1,5 +1,15 @@
-const { Client, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, GatewayIntentBits } = require("discord.js")
+const { Client, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, GatewayIntentBits, ActionRow } = require("discord.js")
 const { REST } = require('@discordjs/rest');
+
+let redAllienceButton = new ButtonBuilder()
+    .setCustomId("ID")
+    .setLabel("RedButton")
+    .setStyle(ButtonStyle.Danger);
+
+let blueAllienceButton = new ButtonBuilder()
+    .setCustomId("ID")
+    .setLabel("BlueButton")
+    .setStyle(ButtonStyle.Primary);
 
 class DiscordBot{
     constructor(apiKey,channelID,onReadyFunc){
@@ -14,6 +24,7 @@ class DiscordBot{
 
         this.client.login(apiKey);
 
+        //rest api of discord for commands
         this.rest = new REST({ version: '10' }).setToken(apiKey);
 
         let onClientLoaded = () => {
@@ -32,16 +43,39 @@ class DiscordBot{
         this.client.once('ready', onClientLoaded.bind(this));
     }
 
-    
-    async createButton() {
-        const row = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('primary')
-                .setLabel('Click me!')
-                .setStyle(ButtonStyle.Primary),
-        );
-        await this.channel.send({ content: 'I think you should,', components: [row] });
+    async createModalWindow(teamName,teamNumber,matchNumber){
+        const modal = new ModalBuilder()
+            .setCustomId(teamNumber+'-'+matchNumber)
+            .setTitle('Team ' + teamName + " Scouting Confirm?");
+    }
+
+    async createButtonsFromMatch(matchNum,matchData,website){
+        let bTeam = matchData["blue"];
+        let rTeam = matchData["red"];
+
+        const blueRow = new ActionRowBuilder()
+        const redRow = new ActionRowBuilder()
+
+        for(var i = 0; i < bTeam.length; i++){
+            let r = rTeam[i];
+            let b = bTeam[i];
+
+            redRow.addComponents(
+                new ButtonBuilder()
+                    .setCustomId(r['key'])
+                    .setLabel(r['nickname'])
+                    .setStyle(ButtonStyle.Danger)
+            )
+
+            blueRow.addComponents(
+                new ButtonBuilder()
+                    .setCustomId(b['key'])
+                    .setLabel(b['nickname'])
+                    .setStyle(ButtonStyle.Primary)
+            )
+        }
+
+        this.channel.send({ content: `Scouting Teams For Match #${matchNum}`, components: [blueRow,redRow] });
     }
 }
 

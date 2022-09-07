@@ -1,19 +1,11 @@
-const { Client, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, GatewayIntentBits, ActionRow } = require("discord.js")
+const { Client, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, GatewayIntentBits, ActionRow, ModalAssertions, ModalBuilder } = require("discord.js")
 const { REST } = require('@discordjs/rest');
 
-let redAllienceButton = new ButtonBuilder()
-    .setCustomId("ID")
-    .setLabel("RedButton")
-    .setStyle(ButtonStyle.Danger);
-
-let blueAllienceButton = new ButtonBuilder()
-    .setCustomId("ID")
-    .setLabel("BlueButton")
-    .setStyle(ButtonStyle.Primary);
-
 class DiscordBot{
-    constructor(apiKey,channelID,onReadyFunc){
+    constructor(apiKey,channelID,onReadyFunc,baseurl){
         this.key = apiKey;
+        this.matchNumber = 0;
+        this.url = baseurl;
         this.client = new Client({intents: [
             GatewayIntentBits.Guilds,
             GatewayIntentBits.GuildMessages,
@@ -39,19 +31,16 @@ class DiscordBot{
             });
             onReadyFunc();
         }
-        
-        this.client.once('ready', onClientLoaded.bind(this));
+
+        this.client.on('ready', onClientLoaded.bind(this))
     }
 
-    async createModalWindow(teamName,teamNumber,matchNumber){
-        const modal = new ModalBuilder()
-            .setCustomId(teamNumber+'-'+matchNumber)
-            .setTitle('Team ' + teamName + " Scouting Confirm?");
-    }
-
-    async createButtonsFromMatch(matchNum,matchData,website){
+    async createButtonsFromMatch(matchNum,matchData){
         let bTeam = matchData["blue"];
         let rTeam = matchData["red"];
+        let baseUrl = this.url;
+
+        this.matchNumber = matchNum;
 
         const blueRow = new ActionRowBuilder()
         const redRow = new ActionRowBuilder()
@@ -75,7 +64,38 @@ class DiscordBot{
             )
         }
 
-        this.channel.send({ content: `Scouting Teams For Match #${matchNum}`, components: [blueRow,redRow] });
+        let msg = await this.channel.send({ content: `Scouting Teams For Match #${matchNum}`, components: [blueRow,redRow] });
+        const buttonFilter = (btnInt) => {
+            return btnInt.user.id == btnInt.user.id;
+        }
+
+        let onButtonClicked = async (buttonInteraction) => {
+            //console.log(buttonInteraction.customId);
+            await buttonInteraction.reply({content: `${this.url}/?team=${buttonInteraction.customId}&match=${matchNum}`,ephemeral: true});
+
+            for(var i = 0; i < redRow.components.length; i++){
+                let rButton = redRow.components[i];
+                let bButton = blueRow.components[i];
+
+                if(rButton.data['custom_id'] == buttonInteraction.customId){
+                    //console.log("Button Found: " + rButton.data['custom_id']);
+                    redRow.components[i].setDisabled(true);
+                    redRow.components[i].setLabel(`Taken: @${buttonInteraction.user.username}`);
+                }
+                else if(bButton.data['custom_id'] == buttonInteraction.customId){
+                    //console.log("Button Found: " + bButton.data['custom_id']);
+                    blueRow.components[i].setDisabled(true);
+                    blueRow.components[i].setLabel(`Taken: @${buttonInteraction.user.username}`);
+                }
+            }
+
+            msg.edit({ content: `Scouting Teams For Match #${matchNum}`, components: [blueRow,redRow] });
+        }
+
+        const collector = this.channel.createMessageComponentCollector({buttonFilter, max: 250, time: 1000 * 45});
+        collector.on('collect', onButtonClicked.bind(this));
+
+        console.log("Created Buttons For Match #" + matchNum);
     }
 }
 

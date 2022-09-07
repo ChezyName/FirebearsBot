@@ -6,14 +6,14 @@ const dotenv = require("dotenv");
 dotenv.config();
 const {DiscordTOKEN,DiscordBotChannel,TBA,TEAMNUM,SITE} = process.env;
 
-const client = new DiscordBot(DiscordTOKEN,DiscordBotChannel,main);
+const client = new DiscordBot(DiscordTOKEN,DiscordBotChannel,main,SITE);
 const tba = new TBA_API(TBA,TEAMNUM);
 
 async function displayCurrentMatch(){
     let event = await tba.getCurrentEvent();
     let matches = await tba.getMatches(event['key']);
     let teamData = await tba.getTeamDataFromMatch(matches[0]);
-    client.createButtonsFromMatch(matches[0]["match_number"],teamData,SITE);
+    client.createButtonsFromMatch(matches[0]["match_number"],teamData);
 }
 
 async function main(){

@@ -5,11 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "dev": "node index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^14.2.0"
+    "@discordjs/rest": "^1.1.0",
+    "discord-api-types": "^0.37.7",
+    "discord.js": "^14.2.0",
+    "dotenv": "^16.0.1"
   }
 }

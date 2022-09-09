@@ -35,8 +35,13 @@ class TBA_API{
     }
 
     async getMatches(eventKey){
-        let allMatches = this.getData("/event/"+eventKey+"/matches/simple");
+        let allMatches = await this.getData("/event/"+eventKey+"/matches/simple");
         return allMatches;
+    }
+
+    async getOurMatches(eventKey){
+        let matches = await this.getData("/team/"+this.team+"/event/"+eventKey+"/matches/simple");
+        return matches;
     }
 
     async getTeamInfo(teamKey){

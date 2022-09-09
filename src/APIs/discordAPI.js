@@ -1,8 +1,11 @@
-const { Client, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, GatewayIntentBits, ActionRow, ModalAssertions, ModalBuilder } = require("discord.js")
+const { Client, Collection, ActionRowBuilder, ButtonBuilder, ButtonStyle, GatewayIntentBits} = require("discord.js")
 const { REST } = require('@discordjs/rest');
+const { Routes } = require('discord.js');
+const fs = require('node:fs');
+const path = require('node:path');
 
 class DiscordBot{
-    constructor(apiKey,channelID,onReadyFunc,baseurl){
+    constructor(apiKey,channelID,onReadyFunc,baseurl,appID,TBAAPI){
         this.key = apiKey;
         this.matchNumber = 0;
         this.url = baseurl;
@@ -15,10 +18,49 @@ class DiscordBot{
         ]});
 
         this.client.login(apiKey);
-
-        //rest api of discord for commands
         this.rest = new REST({ version: '10' }).setToken(apiKey);
+        this.TBA = TBAAPI;
 
+        //Commands all from ./commands folder
+        this.commands = [];
+        this.commandsExe = new Collection();
+        const commandsPath = path.join(__dirname,'..','commands');
+        const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+        console.log("\n\nLoading All Bot Commands...")
+        for (const file of commandFiles) {
+            const filePath = path.join(commandsPath, file);
+            const command = require(filePath);
+            console.log("-Loaded " + command.data.name);
+            this.commands.push(command.data.toJSON());
+            this.commandsExe.set(command.data.name,command);
+        }
+
+        let onCommand = async (interaction) => {
+            if (!interaction.isChatInputCommand()) return;
+        
+            //console.log("looking for @ " + interaction.commandName);
+            const command = this.commandsExe.get(interaction.commandName);
+        
+            if (!command) return;
+        
+            try {
+                await command.execute(interaction,this.TBA);
+            } catch (error) {
+                console.error(error);
+                await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+            }
+        }
+
+        this.client.on('interactionCreate', onCommand.bind(this));
+
+        //console.log("Commands Length: " + this.commands);
+        this.rest.put(Routes.applicationCommands(appID), { body: this.commands })
+            .then((data) => console.log(`Successfully registered ${data.length} application command(s).`))
+            .catch(console.error);
+
+        console.log("\n");
+
+        //Final Loadings
         let onClientLoaded = () => {
             console.log('Bot Has Loaded Up...');
             this.client.user.setActivity("For Matches!", { type: "WATCHING"})
@@ -26,7 +68,7 @@ class DiscordBot{
             this.channel = this.client.channels.cache.get(channelID);
             this.hasLoaded = true;
             this.client.user.setPresence({
-                game: { name: 'Watching For TBA Api Changes...' },
+                game: { name: 'Watching For TBA API Changes...' },
                 status: 'idle',
             });
             onReadyFunc();
@@ -85,7 +127,7 @@ class DiscordBot{
                 else if(bButton.data['custom_id'] == buttonInteraction.customId){
                     //console.log("Button Found: " + bButton.data['custom_id']);
                     blueRow.components[i].setDisabled(true);
-                    blueRow.components[i].setLabel(`Taken: @${buttonInteraction.user.username}`);
+                    blueRow.components[i].setLabel(`Taken by ${buttonInteraction.user.username}`);
                 }
             }
 

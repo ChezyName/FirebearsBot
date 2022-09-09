@@ -4,10 +4,10 @@ const {TBA_API} = require("./src/APIs/tbaAPI");
 const dotenv = require("dotenv");
 
 dotenv.config();
-const {DiscordTOKEN,DiscordBotChannel,TBA,TEAMNUM,SITE} = process.env;
+const {DiscordTOKEN,DiscordBotChannel,TBA,TEAMNUM,SITE,DiscordAppID} = process.env;
 
-const client = new DiscordBot(DiscordTOKEN,DiscordBotChannel,main,SITE);
 const tba = new TBA_API(TBA,TEAMNUM);
+const client = new DiscordBot(DiscordTOKEN,DiscordBotChannel,main,SITE,DiscordAppID,tba);
 
 async function displayCurrentMatch(){
     let event = await tba.getCurrentEvent();

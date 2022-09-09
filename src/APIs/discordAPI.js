@@ -86,6 +86,8 @@ class DiscordBot{
 
         const blueRow = new ActionRowBuilder()
         const redRow = new ActionRowBuilder()
+        const blueLabels = [];
+        const redLabels = [];
 
         for(var i = 0; i < bTeam.length; i++){
             let r = rTeam[i];
@@ -97,6 +99,7 @@ class DiscordBot{
                     .setLabel(r['nickname'])
                     .setStyle(ButtonStyle.Danger)
             )
+            
 
             blueRow.addComponents(
                 new ButtonBuilder()
@@ -104,6 +107,9 @@ class DiscordBot{
                     .setLabel(b['nickname'])
                     .setStyle(ButtonStyle.Primary)
             )
+
+            blueLabels.push(b['nickname']);
+            redLabels.push(r["nickname"]);
         }
 
         let msg = await this.channel.send({ content: `Scouting Teams For Match #${matchNum}`, components: [blueRow,redRow] });
@@ -122,12 +128,14 @@ class DiscordBot{
                 if(rButton.data['custom_id'] == buttonInteraction.customId){
                     //console.log("Button Found: " + rButton.data['custom_id']);
                     redRow.components[i].setDisabled(true);
-                    redRow.components[i].setLabel(redRow.components[i].label ` - ${buttonInteraction.user.username}`);
+                    let label = redLabels[i];
+                    redRow.components[i].setLabel(label + ` - ${buttonInteraction.user.username}`);
                 }
                 else if(bButton.data['custom_id'] == buttonInteraction.customId){
                     //console.log("Button Found: " + bButton.data['custom_id']);
                     blueRow.components[i].setDisabled(true);
-                    blueRow.components[i].setLabel(blueRow.components[i].lebel ` - ${buttonInteraction.user.username}`);
+                    let label = blueLabels[i];
+                    blueRow.components[i].setLabel(label + ` - ${buttonInteraction.user.username}`);
                 }
             }
 

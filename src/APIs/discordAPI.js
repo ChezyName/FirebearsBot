@@ -122,12 +122,12 @@ class DiscordBot{
                 if(rButton.data['custom_id'] == buttonInteraction.customId){
                     //console.log("Button Found: " + rButton.data['custom_id']);
                     redRow.components[i].setDisabled(true);
-                    redRow.components[i].setLabel(`Taken: @${buttonInteraction.user.username}`);
+                    redRow.components[i].setLabel(redRow.components[i].label ` - ${buttonInteraction.user.username}`);
                 }
                 else if(bButton.data['custom_id'] == buttonInteraction.customId){
                     //console.log("Button Found: " + bButton.data['custom_id']);
                     blueRow.components[i].setDisabled(true);
-                    blueRow.components[i].setLabel(`Taken by ${buttonInteraction.user.username}`);
+                    blueRow.components[i].setLabel(blueRow.components[i].lebel ` - ${buttonInteraction.user.username}`);
                 }
             }
 

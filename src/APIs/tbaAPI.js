@@ -26,12 +26,14 @@ class TBA_API{
 
     async getYearEvents(){
         let year = new Date().getFullYear();
+        let nextYear = new Date(new Date().setFullYear(new Date().getFullYear() + 1)).getFullYear();
         //console.log("Current Year is " + year);
         let events = await this.getData("/team/"+this.team+"/events/"+year+"/simple");
+        let nextEvents = await this.getData("/team/"+this.team+"/events/"+nextYear+"/simple");
         //console.log("\n our current events for "+year+" are:")
-        //console.log(events);
+        console.log(nextEvents);
         //console.log("\n");
-        return events;
+        return events.concat(nextEvents);
     }
 
     async getMatches(eventKey){

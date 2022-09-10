@@ -25,6 +25,7 @@ module.exports = {
         //console.log(data);
         
         let matches = "Total Matches For Our Team [" + data.length + "]\n";
+        matches += "Event: " + eventKey + "\n"
         await interaction.reply(matches);
 
         for(var i = 0; i < data.length; i++){
@@ -46,7 +47,12 @@ module.exports = {
             }
 
             matches += "```";
-            await interaction.editReply(matches);
+            if(matches.length >= 1){
+                matches = "";
+            }
+            else{
+                await interaction.editReply(matches);
+            }
         };
 	},
 };

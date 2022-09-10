@@ -93,10 +93,13 @@ class DiscordBot{
             let r = rTeam[i];
             let b = bTeam[i];
 
+            let bName = b['key'].replace("frc","");
+            let rName = r['key'].replace("frc","");
+
             redRow.addComponents(
                 new ButtonBuilder()
                     .setCustomId(r['key'])
-                    .setLabel(r['nickname'])
+                    .setLabel(r['nickname'] + ":" + rName)
                     .setStyle(ButtonStyle.Danger)
             )
             
@@ -104,7 +107,7 @@ class DiscordBot{
             blueRow.addComponents(
                 new ButtonBuilder()
                     .setCustomId(b['key'])
-                    .setLabel(b['nickname'])
+                    .setLabel(b['nickname'] + ":" + bName)
                     .setStyle(ButtonStyle.Primary)
             )
 
@@ -119,7 +122,7 @@ class DiscordBot{
 
         let onButtonClicked = async (buttonInteraction) => {
             //console.log(buttonInteraction.customId);
-            await buttonInteraction.reply({content: `${this.url}/?team=${buttonInteraction.customId}&match=${matchNum}`,ephemeral: true});
+            await buttonInteraction.reply({content: `${this.url}/?team=${(buttonInteraction.customId.replace("frc",""))}&match=${matchNum}`,ephemeral: true});
 
             for(var i = 0; i < redRow.components.length; i++){
                 let rButton = redRow.components[i];

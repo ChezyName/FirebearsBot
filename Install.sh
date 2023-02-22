@@ -54,6 +54,11 @@ echo "Extracted Firebears Bot"
 
 echo "Installing PM2"
 npm install pm2@latest -g
+
+echo "Installed All Required Modules."
+
+echo "Type API Keys For Discord & TBA 'The Blue Allience'"
+
+
 echo "Installed PM2"
 pm2 start ./FirebearsBot/index.js
-

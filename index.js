@@ -11,6 +11,7 @@ const client = new DiscordBot(DiscordTOKEN,DiscordBotChannel,main,SITE,DiscordAp
 
 async function displayCurrentMatch(){
     let event = await tba.getCurrentEvent();
+    console.log(event);
     let matches = await tba.getMatches(event['key']);
     let teamData = await tba.getTeamDataFromMatch(matches[0]);
     client.createButtonsFromMatch(matches[0]["match_number"],teamData);
@@ -18,5 +19,5 @@ async function displayCurrentMatch(){
 
 async function main(){
     console.log("Main Function Loaded...");
-    while(true) displayCurrentMatch();
+    displayCurrentMatch();
 }

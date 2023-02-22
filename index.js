@@ -18,5 +18,5 @@ async function displayCurrentMatch(){
 
 async function main(){
     console.log("Main Function Loaded...");
-    displayCurrentMatch();
+    while(true) displayCurrentMatch();
 }
